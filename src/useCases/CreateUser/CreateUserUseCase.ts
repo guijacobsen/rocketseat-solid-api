@@ -9,26 +9,30 @@ export class CreateUserUseCase {
     private mailProvider: IMailProvider
   ) {}
   async execute(data: ICreateUserRequestDTO) {
-    const userAlreadyExists = await this.usersRepository.findByEmail(
-      data.email
-    );
-    if (userAlreadyExists) {
-      throw new Error("User already exists");
-    }
-    const user = new User(data);
+    try {
+      const userAlreadyExists = await this.usersRepository.findByEmail(
+        data.email
+      );
+      if (userAlreadyExists) {
+        throw new Error("User already exists");
+      }
+      const user = new User(data);
 
-    await this.usersRepository.save(user);
-    this.mailProvider.sendMail({
-      to: {
-        name: "Guilherme",
-        email: "guijacobsen@gmail.com",
-      },
-      from: {
-        name: "Natalia",
-        email: "natalia@gmail.com",
-      },
-      subject: "Cadastro usuário",
-      body: "Usuário cadastrado",
-    });
+      await this.usersRepository.save(user);
+      this.mailProvider.sendMail({
+        to: {
+          name: data.name,
+          email: data.email,
+        },
+        from: {
+          name: "Equipe APP",
+          email: "equipeapp@app.com.br",
+        },
+        subject: "Bem vindo",
+        body: "Usuário cadastrado",
+      });
+    } catch (error) {
+      console.log("---- error : ", error);
+    }
   }
 }
